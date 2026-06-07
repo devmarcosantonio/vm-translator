@@ -13,31 +13,35 @@ Python 3.11+. Sem dependências externas (apenas stdlib).
 
 ## Como executar
 
+**Arquivo único:**
 ```bash
 python main.py caminho/para/arquivo.vm
 ```
+Gera `arquivo.asm` no mesmo diretório do arquivo de entrada.
 
-Gera: `caminho/para/arquivo.asm`
+**Pasta com múltiplos arquivos `.vm`:**
+```bash
+python main.py caminho/para/pasta/
+```
+Gera `NomeDaPasta.asm` dentro da pasta, combinando todos os `.vm` encontrados.
 
-## Exemplo
+## Exemplos
 
 ```bash
-python main.py projects/07/MemoryAccess/BasicTest/BasicTest.vm
-# Saída: projects/07/MemoryAccess/BasicTest/BasicTest.asm
+# arquivo único
+python main.py input/Main.vm
+# Saída: input/Main.asm
+
+# pasta
+python main.py input/Average/
+# Saída: input/Average/Average.asm
 ```
-
-## Validação no CPUEmulator
-
-1. Abrir o CPUEmulator do Nand2Tetris
-2. Carregar o script `.tst` correspondente ao teste
-3. Executar — resultado esperado: `Comparison ended successfully.`
-
-Testes obrigatórios:
-- `StackArithmetic/SimpleAdd/SimpleAdd.vm`
-- `MemoryAccess/BasicTest/BasicTest.vm`
 
 ## Testes unitários
 
 ```bash
 python -m pytest tests/
+
+# ou diretamente
+python tests/test_parser.py
 ```
