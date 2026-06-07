@@ -54,6 +54,12 @@ class CodeWriter:
                 "M=-1",
                 f"({label}_END_{n})",
             )
+        elif command == "and":
+            self._write("@SP", "AM=M-1", "D=M", "A=A-1", "M=D&M")
+        elif command == "or":
+            self._write("@SP", "AM=M-1", "D=M", "A=A-1", "M=D|M")
+        elif command == "not":
+            self._write("@SP", "A=M-1", "M=!M")
 
     def writePop(self, segment: str, index: int) -> None:
         pass
