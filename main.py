@@ -35,14 +35,12 @@ def main():
             print(f"Nenhum arquivo .vm encontrado em: {path}")
             sys.exit(1)
 
-        dir_name = os.path.basename(os.path.abspath(path))
-        output_file = os.path.join(path, dir_name + ".asm")
-        writer = CodeWriter(output_file)
         for vm_file in sorted(vm_files):
-            print(f"Traduzindo: {vm_file}")
+            output_file = os.path.splitext(vm_file)[0] + ".asm"
+            writer = CodeWriter(output_file)
             translate(vm_file, writer)
-        writer.close()
-        print(f"Gerado: {output_file}")
+            writer.close()
+            print(f"Gerado: {output_file}")
 
     else:
         output_file = os.path.splitext(path)[0] + ".asm"
