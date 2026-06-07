@@ -11,11 +11,63 @@ class CodeWriter:
         for line in lines:
             self._file.write(line + "\n")
 
+    _SEGMENT_POINTER = {
+        "local": "LCL",
+        "argument": "ARG",
+        "this": "THIS",
+        "that": "THAT",
+    }
+
     def writePush(self, segment: str, index: int) -> None:
         if segment == "constant":
             self._write(
                 f"@{index}",
                 "D=A",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+            )
+        elif segment in self._SEGMENT_POINTER:
+            ptr = self._SEGMENT_POINTER[segment]
+            self._write(
+                f"@{ptr}",
+                "D=M",
+                f"@{index}",
+                "A=D+A",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+            )
+        elif segment == "temp":
+            self._write(
+                f"@{5 + index}",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+            )
+        elif segment == "pointer":
+            addr = 3 + index
+            self._write(
+                f"@{addr}",
+                "D=M",
+                "@SP",
+                "A=M",
+                "M=D",
+                "@SP",
+                "M=M+1",
+            )
+        elif segment == "static":
+            self._write(
+                f"@{self._base_name}.{index}",
+                "D=M",
                 "@SP",
                 "A=M",
                 "M=D",
@@ -62,7 +114,46 @@ class CodeWriter:
             self._write("@SP", "A=M-1", "M=!M")
 
     def writePop(self, segment: str, index: int) -> None:
-        pass
+        if segment in self._SEGMENT_POINTER:
+            ptr = self._SEGMENT_POINTER[segment]
+            self._write(
+                f"@{ptr}",
+                "D=M",
+                f"@{index}",
+                "D=D+A",
+                "@R13",
+                "M=D",
+                "@SP",
+                "AM=M-1",
+                "D=M",
+                "@R13",
+                "A=M",
+                "M=D",
+            )
+        elif segment == "temp":
+            self._write(
+                "@SP",
+                "AM=M-1",
+                "D=M",
+                f"@{5 + index}",
+                "M=D",
+            )
+        elif segment == "pointer":
+            self._write(
+                "@SP",
+                "AM=M-1",
+                "D=M",
+                f"@{3 + index}",
+                "M=D",
+            )
+        elif segment == "static":
+            self._write(
+                "@SP",
+                "AM=M-1",
+                "D=M",
+                f"@{self._base_name}.{index}",
+                "M=D",
+            )
 
     def close(self) -> None:
         self._file.close()
