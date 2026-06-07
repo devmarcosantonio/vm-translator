@@ -23,7 +23,12 @@ class CodeWriter:
             )
 
     def writeArithmetic(self, command: str) -> None:
-        pass
+        if command == "add":
+            self._write("@SP", "AM=M-1", "D=M", "A=A-1", "M=D+M")
+        elif command == "sub":
+            self._write("@SP", "AM=M-1", "D=M", "A=A-1", "M=M-D")
+        elif command == "neg":
+            self._write("@SP", "A=M-1", "M=-M")
 
     def writePop(self, segment: str, index: int) -> None:
         pass
