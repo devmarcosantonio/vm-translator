@@ -9,7 +9,7 @@ Tradutor de bytecode VM para linguagem de montagem Hack (Nand2Tetris — Projeto
 
 ## Linguagem
 
-Python 3.11+.
+Python 3.11+. Sem dependências externas (apenas stdlib).
 
 ## Como executar
 
@@ -19,4 +19,25 @@ python main.py caminho/para/arquivo.vm
 
 Gera: `caminho/para/arquivo.asm`
 
-## Em construção
+## Exemplo
+
+```bash
+python main.py projects/07/MemoryAccess/BasicTest/BasicTest.vm
+# Saída: projects/07/MemoryAccess/BasicTest/BasicTest.asm
+```
+
+## Validação no CPUEmulator
+
+1. Abrir o CPUEmulator do Nand2Tetris
+2. Carregar o script `.tst` correspondente ao teste
+3. Executar — resultado esperado: `Comparison ended successfully.`
+
+Testes obrigatórios:
+- `StackArithmetic/SimpleAdd/SimpleAdd.vm`
+- `MemoryAccess/BasicTest/BasicTest.vm`
+
+## Testes unitários
+
+```bash
+python -m pytest tests/
+```
