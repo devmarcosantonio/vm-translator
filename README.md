@@ -23,7 +23,7 @@ Gera `arquivo.asm` no mesmo diretório do arquivo de entrada.
 ```bash
 python main.py caminho/para/pasta/
 ```
-Gera `NomeDaPasta.asm` dentro da pasta, combinando todos os `.vm` encontrados.
+Gera um `.asm` separado para cada `.vm` encontrado na pasta.
 
 ## Exemplos
 
@@ -34,7 +34,7 @@ python main.py input/Main.vm
 
 # pasta
 python main.py input/Average/
-# Saída: input/Average/Average.asm
+# Saída: input/Average/Main.asm, input/Average/Average.asm, ...
 ```
 
 ## Testes unitários
