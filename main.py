@@ -5,6 +5,8 @@ from codewriter.code_writer import CodeWriter
 
 
 def translate(vm_file: str, writer: CodeWriter) -> None:
+    # Define o prefixo das variaveis static a partir do nome do arquivo.
+    writer.setFileName(os.path.splitext(os.path.basename(vm_file))[0])
     parser = Parser(vm_file)
     while parser.hasMoreCommands():
         parser.advance()
@@ -15,6 +17,18 @@ def translate(vm_file: str, writer: CodeWriter) -> None:
             writer.writePush(parser.arg1(), parser.arg2())
         elif cmd_type == "C_POP":
             writer.writePop(parser.arg1(), parser.arg2())
+        elif cmd_type == "C_LABEL":
+            writer.writeLabel(parser.arg1())
+        elif cmd_type == "C_GOTO":
+            writer.writeGoto(parser.arg1())
+        elif cmd_type == "C_IF":
+            writer.writeIf(parser.arg1())
+        elif cmd_type == "C_FUNCTION":
+            writer.writeFunction(parser.arg1(), parser.arg2())
+        elif cmd_type == "C_CALL":
+            writer.writeCall(parser.arg1(), parser.arg2())
+        elif cmd_type == "C_RETURN":
+            writer.writeReturn()
 
 
 def main():
@@ -35,14 +49,18 @@ def main():
             print(f"Nenhum arquivo .vm encontrado em: {path}")
             sys.exit(1)
 
+        # Um unico .asm com o nome da pasta, contendo bootstrap + todos os .vm.
+        dir_name = os.path.basename(os.path.normpath(path))
+        output_file = os.path.join(path, dir_name + ".asm")
+        writer = CodeWriter(output_file)
+        writer.writeInit()
         for vm_file in sorted(vm_files):
-            output_file = os.path.splitext(vm_file)[0] + ".asm"
-            writer = CodeWriter(output_file)
             translate(vm_file, writer)
-            writer.close()
-            print(f"Gerado: {output_file}")
+        writer.close()
+        print(f"Gerado: {output_file}")
 
     else:
+        # Arquivo unico: gera .asm de mesmo nome, sem bootstrap (preserva Parte 1).
         output_file = os.path.splitext(path)[0] + ".asm"
         writer = CodeWriter(output_file)
         translate(path, writer)
