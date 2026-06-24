@@ -4,10 +4,20 @@ import os
 class CodeWriter:
     def __init__(self, filename: str):
         self._file = open(filename, "w")
-        self._base_name = os.path.splitext(os.path.basename(filename))[0]
+        # Nome do arquivo .vm atual, usado como prefixo das variaveis static.
+        # Pode ser trocado via setFileName ao processar varios .vm num diretorio.
+        self._file_name = os.path.splitext(os.path.basename(filename))[0]
         self._label_counter = 0
         self._current_function = ""
         self._call_counter = 0
+
+    def setFileName(self, name: str) -> None:
+        self._file_name = name
+
+    def writeInit(self) -> None:
+        # Bootstrap: SP = 256 e chama Sys.init (que monta o frame inicial).
+        self._write("@256", "D=A", "@SP", "M=D")
+        self.writeCall("Sys.init", 0)
 
     def _write(self, *lines: str) -> None:
         for line in lines:
@@ -73,7 +83,7 @@ class CodeWriter:
             )
         elif segment == "static":
             self._write(
-                f"@{self._base_name}.{index}",
+                f"@{self._file_name}.{index}",
                 "D=M",
                 "@SP",
                 "A=M",
@@ -158,7 +168,7 @@ class CodeWriter:
                 "@SP",
                 "AM=M-1",
                 "D=M",
-                f"@{self._base_name}.{index}",
+                f"@{self._file_name}.{index}",
                 "M=D",
             )
 
