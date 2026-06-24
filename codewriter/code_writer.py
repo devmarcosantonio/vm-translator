@@ -177,5 +177,31 @@ class CodeWriter:
             "D;JNE",
         )
 
+    def writeFunction(self, name: str, nLocals: int) -> None:
+        # Define o escopo atual (usado pelos labels) e inicializa as
+        # variaveis locais com 0, empilhando-as uma a uma.
+        self._current_function = name
+        self._write(f"({name})")
+        for _ in range(nLocals):
+            self._write("@SP", "A=M", "M=0", "@SP", "M=M+1")
+
+    def writeReturn(self) -> None:
+        # endFrame = LCL (R13); retAddr = *(endFrame - 5) (R14)
+        self._write(
+            "@LCL", "D=M", "@R13", "M=D",
+            "@5", "A=D-A", "D=M", "@R14", "M=D",
+            # *ARG = pop() -> valor de retorno no lugar do arg0
+            "@SP", "AM=M-1", "D=M", "@ARG", "A=M", "M=D",
+            # SP = ARG + 1
+            "@ARG", "D=M+1", "@SP", "M=D",
+            # restaura THAT, THIS, ARG, LCL a partir de endFrame
+            "@R13", "AM=M-1", "D=M", "@THAT", "M=D",
+            "@R13", "AM=M-1", "D=M", "@THIS", "M=D",
+            "@R13", "AM=M-1", "D=M", "@ARG", "M=D",
+            "@R13", "AM=M-1", "D=M", "@LCL", "M=D",
+            # goto retAddr
+            "@R14", "A=M", "0;JMP",
+        )
+
     def close(self) -> None:
         self._file.close()
