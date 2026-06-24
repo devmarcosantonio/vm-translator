@@ -7,6 +7,7 @@ class CodeWriter:
         self._base_name = os.path.splitext(os.path.basename(filename))[0]
         self._label_counter = 0
         self._current_function = ""
+        self._call_counter = 0
 
     def _write(self, *lines: str) -> None:
         for line in lines:
@@ -184,6 +185,23 @@ class CodeWriter:
         self._write(f"({name})")
         for _ in range(nLocals):
             self._write("@SP", "A=M", "M=0", "@SP", "M=M+1")
+
+    def writeCall(self, name: str, nArgs: int) -> None:
+        ret = f"{name}$ret.{self._call_counter}"
+        self._call_counter += 1
+        # empilha o endereco de retorno
+        self._write(f"@{ret}", "D=A", "@SP", "A=M", "M=D", "@SP", "M=M+1")
+        # salva o frame do chamador: LCL, ARG, THIS, THAT
+        for ptr in ("LCL", "ARG", "THIS", "THAT"):
+            self._write(f"@{ptr}", "D=M", "@SP", "A=M", "M=D", "@SP", "M=M+1")
+        # ARG = SP - 5 - nArgs
+        self._write("@SP", "D=M", f"@{5 + nArgs}", "D=D-A", "@ARG", "M=D")
+        # LCL = SP
+        self._write("@SP", "D=M", "@LCL", "M=D")
+        # goto name
+        self._write(f"@{name}", "0;JMP")
+        # rotulo de retorno
+        self._write(f"({ret})")
 
     def writeReturn(self) -> None:
         # endFrame = LCL (R13); retAddr = *(endFrame - 5) (R14)
