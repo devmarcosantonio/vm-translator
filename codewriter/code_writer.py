@@ -6,10 +6,16 @@ class CodeWriter:
         self._file = open(filename, "w")
         self._base_name = os.path.splitext(os.path.basename(filename))[0]
         self._label_counter = 0
+        self._current_function = ""
 
     def _write(self, *lines: str) -> None:
         for line in lines:
             self._file.write(line + "\n")
+
+    def _scoped(self, label: str) -> str:
+        # Escopa o label pela função atual para garantir unicidade global:
+        # "funcao$label". Fora de função, vira apenas "$label".
+        return f"{self._current_function}${label}"
 
     _SEGMENT_POINTER = {
         "local": "LCL",
@@ -154,6 +160,22 @@ class CodeWriter:
                 f"@{self._base_name}.{index}",
                 "M=D",
             )
+
+    def writeLabel(self, label: str) -> None:
+        self._write(f"({self._scoped(label)})")
+
+    def writeGoto(self, label: str) -> None:
+        self._write(f"@{self._scoped(label)}", "0;JMP")
+
+    def writeIf(self, label: str) -> None:
+        # Desempilha o topo; salta se for diferente de zero (verdadeiro).
+        self._write(
+            "@SP",
+            "AM=M-1",
+            "D=M",
+            f"@{self._scoped(label)}",
+            "D;JNE",
+        )
 
     def close(self) -> None:
         self._file.close()
