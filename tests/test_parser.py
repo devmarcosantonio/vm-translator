@@ -60,6 +60,30 @@ class TestParserCommandType(unittest.TestCase):
         p = self._parse_single("pop local 1")
         self.assertEqual(p.commandType(), "C_POP")
 
+    def test_label_command_type(self):
+        p = self._parse_single("label LOOP")
+        self.assertEqual(p.commandType(), "C_LABEL")
+
+    def test_goto_command_type(self):
+        p = self._parse_single("goto LOOP")
+        self.assertEqual(p.commandType(), "C_GOTO")
+
+    def test_if_goto_command_type(self):
+        p = self._parse_single("if-goto LOOP")
+        self.assertEqual(p.commandType(), "C_IF")
+
+    def test_function_command_type(self):
+        p = self._parse_single("function Main.main 2")
+        self.assertEqual(p.commandType(), "C_FUNCTION")
+
+    def test_call_command_type(self):
+        p = self._parse_single("call Main.fib 1")
+        self.assertEqual(p.commandType(), "C_CALL")
+
+    def test_return_command_type(self):
+        p = self._parse_single("return")
+        self.assertEqual(p.commandType(), "C_RETURN")
+
 
 class TestParserArgs(unittest.TestCase):
     def _parse_single(self, line: str) -> Parser:
@@ -88,6 +112,34 @@ class TestParserArgs(unittest.TestCase):
     def test_arg2_pop_returns_index(self):
         p = self._parse_single("pop temp 6")
         self.assertEqual(p.arg2(), 6)
+
+    def test_arg1_label_returns_name(self):
+        p = self._parse_single("label LOOP")
+        self.assertEqual(p.arg1(), "LOOP")
+
+    def test_arg1_goto_returns_name(self):
+        p = self._parse_single("goto END")
+        self.assertEqual(p.arg1(), "END")
+
+    def test_arg1_if_goto_returns_name(self):
+        p = self._parse_single("if-goto LOOP")
+        self.assertEqual(p.arg1(), "LOOP")
+
+    def test_arg1_function_returns_name(self):
+        p = self._parse_single("function Sys.init 0")
+        self.assertEqual(p.arg1(), "Sys.init")
+
+    def test_arg1_call_returns_name(self):
+        p = self._parse_single("call Math.mult 2")
+        self.assertEqual(p.arg1(), "Math.mult")
+
+    def test_arg2_function_returns_nlocals(self):
+        p = self._parse_single("function Sys.init 3")
+        self.assertEqual(p.arg2(), 3)
+
+    def test_arg2_call_returns_nargs(self):
+        p = self._parse_single("call Math.mult 2")
+        self.assertEqual(p.arg2(), 2)
 
 
 class TestParserHasMoreCommands(unittest.TestCase):
