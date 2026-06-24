@@ -4,3 +4,4 @@ __pycache__/
 .pytest_cache/
 #*.asm
 *.out
+PLANO_PARTE2.md

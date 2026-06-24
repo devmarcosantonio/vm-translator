@@ -30,11 +30,27 @@ class Parser:
             return "C_PUSH"
         elif cmd == "pop":
             return "C_POP"
+        elif cmd == "label":
+            return "C_LABEL"
+        elif cmd == "goto":
+            return "C_GOTO"
+        elif cmd == "if-goto":
+            return "C_IF"
+        elif cmd == "function":
+            return "C_FUNCTION"
+        elif cmd == "call":
+            return "C_CALL"
+        elif cmd == "return":
+            return "C_RETURN"
 
     def arg1(self) -> str:
+        # Não deve ser chamado para C_RETURN (comando sem argumentos).
+        # C_ARITHMETIC retorna o próprio comando; os demais retornam o
+        # primeiro argumento (segmento, label ou nome da função).
         if self.commandType() == "C_ARITHMETIC":
             return self._current[0]
         return self._current[1]
 
     def arg2(self) -> int:
+        # Índice (push/pop), nLocals (function) ou nArgs (call).
         return int(self._current[2])
